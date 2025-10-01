@@ -7,37 +7,102 @@
     <link rel="stylesheet" href="calculator.css">
 
 
-<div class=”calculator”>
-  <div class=”calculator__display”>0</div>
-  <div class=”calculator__keys”> … </div>
+
+<div class="calculator">
+  <div class="calculator__display">0</div>
+  <div class="calculator__keys">
+    <button class="key--operator" data-action="add">+</button>
+    <button class="key--operator" data-action="subtract">-</button>
+    <button class="key--operator" data-action="multiply">&times;</button>
+    <button class="key--operator" data-action="divide">÷</button>
+    <button>8</button>
+    <button>9</button>
+    <button data-action="decimal">.</button>
+    <button class="key--equal" data-action="calculate">=</button>
+    <button>4</button>
+    <button>5</button>
+    <button>6</button>
+    <button>7</button>
+    <button>0</button>
+    <button>1</button>
+    <button>2</button>
+    <button>3</button>
+    <button data-action="clear">AC</button>
+  </div>
 </div>
 
+<script>
+const calculator = document.querySelector('.calculator');
+const keys = calculator.querySelector('.calculator__keys');
 
-<!-- Add calculator keys here -->
- <!-- I just playing around with the layout,seems not good enough but okay for now -->
-<div class="calculator__keys">
-  <button class="key--operator" data-action="add">+</button>
-  <button class="key--operator" data-action="subtract">-</button>
-  <button class="key--operator" data-action="multiply">&times;</button>
-  <button class="key--operator" data-action="divide">÷</button>
+let firstValue = null;
+let operator = null;
+let awaitingNextValue = false;
 
-  <button>8</button>
-  <button>9</button>
-  <button data-action="decimal">.</button>
-  <button class="key--equal" data-action="calculate">=</button>
-  <button>4</button>
-  <button>5</button>
-  <button>6</button>
-  <button>7</button>
-  <button>0</button>
-  <button>1</button>
-  <button>2</button>
-  <button>3</button>
-  <button data-action="clear">AC</button>
-</div>
+keys.addEventListener('click', e => {
+  if (e.target.matches('button')) {
+    const key = e.target;
+    const action = key.dataset.action;
+    const display = calculator.querySelector('.calculator__display');
+    const displayValue = display.textContent;
+
+    if (!action) {
+      // If waiting for next value, replace display, else append
+      if (displayValue === '0' || awaitingNextValue) {
+        display.textContent = key.textContent;
+        awaitingNextValue = false;
+      } else {
+        display.textContent = displayValue + key.textContent;
+      }
+    }
+
+    if (
+      action === 'add' ||
+      action === 'subtract' ||
+      action === 'multiply' ||
+      action === 'divide'
+    ) {
+      firstValue = parseFloat(displayValue);
+      operator = action;
+      awaitingNextValue = true;
+    }
+
+    if (action === 'decimal') {
+      if (!displayValue.includes('.')) {
+        display.textContent = displayValue + '.';
+      }
+    }
+
+    if (action === 'clear') {
+      display.textContent = '0';
+      firstValue = null;
+      operator = null;
+      awaitingNextValue = false;
+    }
+
+    if (action === 'calculate') {
+      if (operator && firstValue !== null) {
+        const secondValue = parseFloat(displayValue);
+        let result = 0;
+        if (operator === 'add') result = firstValue + secondValue;
+        if (operator === 'subtract') result = firstValue - secondValue;
+        if (operator === 'multiply') result = firstValue * secondValue;
+        if (operator === 'divide') result = secondValue !== 0 ? firstValue / secondValue : 'Error';
+        display.textContent = result;
+        firstValue = null;
+        operator = null;
+        awaitingNextValue = true;
+      }
+    }
+  }
+});
+</script>
+
+
 
 <style>
-    .calculator__keys {
+
+.calculator__keys {
   display: grid;
   grid-template-columns: repeat(4, 60px);
   gap: 10px;
@@ -58,7 +123,6 @@
 .calculator__keys button:hover {
   background: #d0d0d0;
 }
-
 
 </style>
 
